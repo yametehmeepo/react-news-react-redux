@@ -1,0 +1,16 @@
+
+
+export const SHOWMODAL = 'SHOWMODAL';
+export const HIDEMODAL = 'HIDEMODAL';
+export const LOGOUT = 'LOGOUT';
+export const CHANGEACTION = 'CHANGEACTION';
+export const REGISTERHANDLER = 'REGISTERHANDLER';
+export const SETNICKNAME = 'SETNICKNAME';
+export const CLICKBUTTON = 'CLICKBUTTON';
+export const LOGINSUCCESS = 'LOGINSUCCESS';
+export const REGISTERSUCCESS = 'REGISTERSUCCESS';
+export const CONFIRMDIRTY = 'CONFIRMDIRTY';
+
+
+
+
