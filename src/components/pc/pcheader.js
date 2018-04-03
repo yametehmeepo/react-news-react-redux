@@ -5,11 +5,8 @@ import { connect } from 'react-redux';
 import { 
 	showModal,
 	hideModal,
-	logout,
 	changeAction,
-	registerHandler,
 	setNickName,
-	clickbutton,
 	setConfirmdirty,
 
 } from '../../actions/index.js';
@@ -26,7 +23,7 @@ class FormRegister extends Component {
 		this.compareToFirstPassword = this.compareToFirstPassword.bind(this);
 	}
 	registeSubmit(e){
-		const { action, registerclicked, Onclickbutton, registertext } = this.props;
+		const { action, registerclicked, Onclickbutton } = this.props;
 		e.preventDefault();
 	    this.props.form.validateFieldsAndScroll((err, values) => {
 	      if (!err) {
@@ -149,8 +146,7 @@ const LoginForm = Form.create({})(FormLogin);
 
 class PCHeaderConnect extends Component {
 	componentDidMount(){
-		const { register, nickname } = this.props;
-		console.log("是否登陆: "+ register);
+		const { nickname } = this.props;
 		console.log("用户昵称: "+ nickname);
 	}
 	changeActionHandler(key){
@@ -172,14 +168,14 @@ class PCHeaderConnect extends Component {
 		});
 	}
 	gotousercenter(e){
-		var isLogined = Storage.fetch().register;
-		if(!isLogined){
+		console.log('this.props.register: ' + this.props.register)
+		if(!this.props.register){
 			e.preventDefault();
 			window.open('http://localhost:3000/');
 		}
 	}
 	render(){
-		const { register, action, visible, nickname, logintext, loginclicked, registertext, registerclicked, OnShowModal, OnHideModal, OnregisterHandler, OnsetNickName, Onclickbutton, OnsetConfirmdirty } = this.props;
+		const { register, action, visible, nickname, logintext, loginclicked, registertext, registerclicked, OnShowModal, OnHideModal, OnsetNickName, Onclickbutton, OnsetConfirmdirty } = this.props;
 		var lastMenuItem = !register
 		?
 		<Button onClick={OnShowModal}><Icon type="appstore" /><span>注册/登录</span></Button>
@@ -232,8 +228,7 @@ class PCHeaderConnect extends Component {
 						<TabPane tab="登录" key="1">
 							<LoginForm 
 								OnShowModal={OnShowModal} 
-								OnHideModal={OnHideModal} 
-								OnregisterHandler={OnregisterHandler}
+								OnHideModal={OnHideModal}
 								OnsetNickName={OnsetNickName}
 								Onclickbutton={Onclickbutton}
 								action={action}
@@ -242,8 +237,7 @@ class PCHeaderConnect extends Component {
 							/>
 						</TabPane>
 						<TabPane tab="注册" key="2">
-							<RegisterForm 
-								OnregisterHandler={OnregisterHandler}
+							<RegisterForm
 								Onclickbutton={Onclickbutton}
 								OnsetConfirmdirty={OnsetConfirmdirty}
 								action={action}
@@ -261,15 +255,14 @@ class PCHeaderConnect extends Component {
 
 function mapStateToProps (state) {
 	return {
-		register: state.register,
-		action: state.action,
-		visible: state.visible,
-		nickname: state.nickname,
-		logintext: state.logintext,
-		loginclicked: state.loginclicked,
-		registertext: state.registertext,
-		registerclicked: state.registerclicked,
-		confirmDirty: state.confirmDirty
+		action: state.HeaderReducer.action,
+		visible: state.HeaderReducer.visible,
+		nickname: state.HeaderReducer.nickname,
+		logintext: state.HeaderReducer.logintext,
+		loginclicked: state.HeaderReducer.loginclicked,
+		registertext: state.HeaderReducer.registertext,
+		registerclicked: state.HeaderReducer.registerclicked,
+		confirmDirty: state.HeaderReducer.confirmDirty
 	}
 }
 
@@ -277,11 +270,8 @@ function mapDispatchToProps (dispatch) {
 	return {
 		OnShowModal: () => dispatch(showModal()),
 		OnHideModal: () => dispatch(hideModal()),
-		Onlogout: () => dispatch(logout()),
 		OnchangeAction: (value) => dispatch(changeAction(value)),
-		OnregisterHandler: (bool) => dispatch(registerHandler(bool)),
 		OnsetNickName: (value) => dispatch(setNickName(value)),
-		Onclickbutton: (action,username,password,r_userName,r_password,r_confirmpassword,form) => dispatch(clickbutton(action,username,password,r_userName,r_password,r_confirmpassword,form)),
 		OnsetConfirmdirty: (confirmDirty) => dispatch(setConfirmdirty(confirmDirty)),
 
 	}

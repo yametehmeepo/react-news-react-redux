@@ -14,10 +14,11 @@ export default class MobileIndex extends Component {
 		}
 	}
 	render(){
+		const { register, Onlogout, Onclickbutton } = this.props;
 		return (
 			<Router>
 				<div>
-					<MobileHeader />
+					<MobileHeader register={register} Onlogout={Onlogout} Onclickbutton={Onclickbutton}/>
 					<MobileBody />
 					<MobileFooter />
 					<BackTop />

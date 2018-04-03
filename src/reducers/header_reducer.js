@@ -1,20 +1,17 @@
 import { 
 	SHOWMODAL,
 	HIDEMODAL,
-	LOGOUT,
 	CHANGEACTION,
-	REGISTERHANDLER,
 	SETNICKNAME,
 	CLICKBUTTON,
 	LOGINSUCCESS,
 	REGISTERSUCCESS,
 	CONFIRMDIRTY,
-
+	QUITE
 } from '../actiontypes/index.js';
 import Storage from '../assets/js/storage.js';
 
 const initialState = {
-	register: Storage.fetch().register || false,
 	action: 'login',
 	visible: false,
 	nickname: Storage.fetch().nickname || '',
@@ -35,9 +32,8 @@ const initialState = {
  			return Object.assign({}, state, {
  				visible: false
  			})	
- 		case LOGOUT: 
+ 		case QUITE: 
  			return Object.assign({}, state, {
- 				register: false,
 				nickname: '',
 				action: 'login',
  			})	
@@ -45,10 +41,6 @@ const initialState = {
  			return Object.assign({}, state, {
 				action: action.action,
  			})
- 		case REGISTERHANDLER: 
- 			return Object.assign({}, state, {
-				register: action.register,
- 			})	
  		case SETNICKNAME: 
  			return Object.assign({}, state, {
 				nickname: action.nickname,
@@ -74,7 +66,6 @@ const initialState = {
  				visible: false,
 				logintext: '登录',
 				loginclicked: false,
-				register: true,
 				nickname: action.nickname,
 				userId: action.userId
  			})

@@ -27,7 +27,7 @@ export default class PCUserCenter extends Component {
 		}
 	}
 	componentWillMount(){
-		if(!this.context.isLogined){
+		if(!this.context.register){
 			window.location.href="http://localhost:3000/";
 		}else{
 			document.title = "用户中心";
@@ -160,7 +160,7 @@ export default class PCUserCenter extends Component {
 
 
 PCUserCenter.contextTypes = {
-	isLogined: PropTypes.bool,
+	register: PropTypes.bool,
 	userId: PropTypes.number,
 }
 

@@ -1,48 +1,34 @@
 import React, { Component } from 'react';
-//import { Row, Col, Menu} from 'antd';
-import { Icon, Button, Form, Input, Modal, Tabs, message} from 'antd';
+import { Icon, Button, Form, Input, Modal, Tabs } from 'antd';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
-import PubSub from 'pubsub-js';
+import { connect } from 'react-redux';
+import { 
+	showModal,
+	hideModal,
+	changeAction,
+	setNickName,
+	setConfirmdirty,
+
+} from '../../actions/index.js';
 import Storage from '../../assets/js/storage.js';
 
-//const MenuItem = Menu.Item;
 const FormItem = Form.Item;
 const TabPane = Tabs.TabPane;
 class FormRegister extends Component {
 	constructor(){
 		super();
-		this.state = {
-			confirmDirty: false,
-			registertext: '注册',
-			clicked: false,
-		};
-		this.registeSubmit = this.registeSubmit.bind(this);
-		this.handleConfirm = this.handleConfirm.bind(this);
 		this.validateToNextPassword = this.validateToNextPassword.bind(this);
 		this.compareToFirstPassword = this.compareToFirstPassword.bind(this);
 	}
 	registeSubmit(e){
+		const { action, registerclicked, Onclickbutton } = this.props;
 		e.preventDefault();
 	    this.props.form.validateFieldsAndScroll((err, values) => {
 	      if (!err) {
-	      	if(!this.state.clicked){
+	      	if(!registerclicked){
 	      		console.log('注册');
 		        console.log('Received values of form: ', values);
-		        this.setState({
-					registertext: '注册中...',
-					clicked: true,
-				});
-		        axios.get('http://newsapi.gugujiankong.com/Handler.ashx?action='+this.props.action+'&username=userName&password=password&r_userName='+values.r_username+'&r_password='+values.r_password+'&r_confirmPassword='+values.r_confirmpassword).then(res => {
-		        	message.success('注册成功!')
-		        	this.props.form.resetFields();
-		        	this.setState({
-						registertext: '注册',
-						clicked: false,
-					});
-		        }).catch(res => {
-
-		        });
+		        Onclickbutton(action,values.username,values.password,values.r_username,values.r_password,values.r_confirmpassword,this.props.form);
 		    }
 	      }
 	    });
@@ -57,19 +43,22 @@ class FormRegister extends Component {
 	}
 	validateToNextPassword(rule, value, callback){
 		const form = this.props.form;
-	    if (value && this.state.confirmDirty) {
+		const { confirmDirty } =this.props;
+	    if (value && confirmDirty) {
 	      form.validateFields(['confirm'], { force: true });
 	    }
 	    callback();
 	}
 	handleConfirm(e){
 		var value = e.target.value;
-		this.setState({confirmdirty: this.state.confirmdirty || !!value});
+		const { confirmdirty, OnsetConfirmdirty } = this.props;
+		OnsetConfirmdirty(confirmdirty || !!value)
 	}
 	render(){
 		let {getFieldDecorator} = this.props.form;
+		const { registertext, registerclicked } = this.props;
 		return (
-			<Form layout='vertical' id="form2" ref={(form2) => {this.form_2 = form2}} onSubmit={this.registeSubmit}>
+			<Form layout='vertical' id="form2" onSubmit={this.registeSubmit.bind(this)}>
 				<FormItem label="账号">
 					{
 						getFieldDecorator('r_username', {
@@ -98,10 +87,10 @@ class FormRegister extends Component {
 							},{
 								validator: this.compareToFirstPassword
 							}]
-						})( <Input type="password" placeholder="请再次输入您的密码" className="radiusInput" onBlur={this.handleConfirm}/>)
+						})( <Input type="password" placeholder="请再次输入您的密码" className="radiusInput" onBlur={this.handleConfirm.bind(this)}/>)
 					}
 				</FormItem>
-				<Button type="primary" htmlType="submit" form="form2" disabled={this.state.clicked}>{this.state.registertext}</Button>
+				<Button type="primary" htmlType="submit" form="form2" disabled={registerclicked}>{registertext}</Button>
 			</Form>
 		)
 	}
@@ -109,58 +98,24 @@ class FormRegister extends Component {
 const RegisterForm = Form.create({})(FormRegister);
 
 class FormLogin extends Component {
-	constructor(){
-		super();
-		this.state = {
-			logintext: '登录',
-			clicked: false,
-		}
-		this.loginSubmit = this.loginSubmit.bind(this);
-	}
 	loginSubmit(e){
+		const { action, loginclicked, Onclickbutton } = this.props;
 		e.preventDefault();
 		this.props.form.validateFieldsAndScroll((err,values) => {
 			if(!err){
-				if(!this.state.clicked){
+				if(!loginclicked){
 					console.log('登录');
-					this.setState({
-						logintext: '登录中...',
-						clicked: true,
-					});
 					console.log('Received values of form: ', values);
-					axios.get('http://newsapi.gugujiankong.com/Handler.ashx?action='+this.props.action+'&username='+values.username+'&password='+values.password+'&r_userName='+values.r_username+'&r_password='+values.r_password+'&r_confirmPassword='+values.r_confirmpassword).then(res => {
-						var logindata = res.data;
-						message.success('登陆成功!');
-						this.props.form.resetFields();
-						this.props.setModalVisible(false);
-						this.props.registerHandler(true);
-						this.props.setNickName(logindata.NickUserName);
-						this.setState({
-							logintext: '登录',
-							clicked: false,
-						});
-						Storage.save({
-							register: true,
-							nickname: logindata.NickUserName,
-							userId: logindata.UserId,
-						});
-						PubSub.publish('STORAGE',{
-							register: true,
-							nickname: logindata.NickUserName,
-							userId: logindata.UserId,
-						});
-						PubSub.publish('UpdateCollect');
-			        }).catch(res => {
-			        	message.error('帐号或密码错误!');
-			        });
+					Onclickbutton(action,values.username,values.password,values.r_username,values.r_password,values.r_confirmpassword,this.props.form);
 				}	
 			}
 		})
 	}
 	render(){
 		let {getFieldDecorator} = this.props.form;
+		const { logintext, loginclicked } = this.props;
 		return (
-			<Form layout='vertical' id="form1" hideRequiredMark ref={(form1)=>this.form_1 = form1} onSubmit={this.loginSubmit}>
+			<Form layout='vertical' id="form1" hideRequiredMark onSubmit={this.loginSubmit.bind(this)}>
 				<FormItem label="账号">
 					{
 						getFieldDecorator('username', {
@@ -175,96 +130,55 @@ class FormLogin extends Component {
 						})( <Input type="password" placeholder="请输入您的密码" className="radiusInput"/>)
 					}
 				</FormItem>
-				<Button type="primary" htmlType="submit" form="form1" disabled={this.state.clicked}>{this.state.logintext}</Button>
+				<Button type="primary" htmlType="submit" form="form1" disabled={loginclicked}>{logintext}</Button>
 			</Form>
 		)
 	}
 }
 const LoginForm = Form.create({})(FormLogin);
 
-export default class MobileHeader extends Component {
-	constructor(){
-		super();
-		this.state = {
-			register: Storage.fetch().register || false,
-			action: 'login',
-			visible: false,
-			nickname: Storage.fetch().nickname || '',
-		};
-		this.setModalVisible = this.setModalVisible.bind(this);
-		this.registerHandler = this.registerHandler.bind(this);
-		this.setNickName = this.setNickName.bind(this);
-		this.changeAction = this.changeAction.bind(this);
-		this.logout = this.logout.bind(this);
-	}
+class MobileHeaderConnect extends Component {
 	componentDidMount(){
-		console.log("是否登陆: "+this.state.register);
-		console.log("用户昵称: "+this.state.nickname); 
+		const { nickname } = this.props;
+		console.log("用户昵称: "+ nickname);
 	}
-	setModalVisible(value){
-		this.setState({
-			visible: value
-		})
-	}
-	registerHandler(value){
-		this.setState({
-			register: value
-		})
-	}
-	setNickName(value){
-		this.setState({
-			nickname: value
-		})
-	}
-	changeAction(key){
+	changeActionHandler(key){
+		const { OnchangeAction } = this.props;
 		if(key === '1'){
 			console.log('tab-login');
-			this.setState({
-				action: 'login'
-			})
+			OnchangeAction('login');
 		}else{
 			console.log('tab-register');
-			this.setState({
-				action: 'register'
-			})
+			OnchangeAction('register');
 		}
 	}
-	logout(){
-		this.registerHandler(false);
-		this.setNickName('');
-		this.setState({
-			action: 'login'
-		})	
+	logouthandler(){
+		this.props.Onlogout();
 		Storage.save({
 			register: false,
 			nickname: '',
 			userId: 0,
 		});
-		PubSub.publish('STORAGE', {
-			register: false,
-			nickname: '',
-			userId: 0,
-		})
 	}
 	gotousercenter(e){
-		var isLogined = Storage.fetch().register;
-		if(!isLogined){
+		if(!Storage.fetch().register){
 			e.preventDefault();
 			window.open('http://localhost:3000/');
 		}
 	}
 	render(){
-		var lastMenuItem = this.state.register
+		const { register, action, visible, logintext, loginclicked, registertext, registerclicked, OnShowModal, OnHideModal, OnsetNickName, Onclickbutton, OnsetConfirmdirty } = this.props;
+		var lastMenuItem = register
 		?
 		<div>
 			<Link to="/usercenter" onClick={this.gotousercenter.bind(this)} style={{marginTop: '-4px',display: 'inline-block'}}>
 				<Button type="primary" className="usercenter">个人中心</Button>
 			</Link>
 			&nbsp;&nbsp;
-			<Button type="default" onClick={this.logout}>退出</Button>
+			<Button type="default" onClick={this.logouthandler.bind(this)}>退出</Button>
 		</div>
 		:
-		<Icon type="setting" onClick={this.setModalVisible.bind(null,true)}/>
+		<Icon type="setting" onClick={OnShowModal}/>
 		;
 		return (
 			<header className="mobileheader">
@@ -276,24 +190,33 @@ export default class MobileHeader extends Component {
 					{lastMenuItem}
 				</div>
 				<Modal
-					visible={this.state.visible}
+					visible={visible}
 					title="用户中心"
-					onCancel={()=>this.setModalVisible(false)}
-					onOk={()=>this.setModalVisible(false)}
+					onCancel={OnHideModal}
+					onOk={OnHideModal}
 					okText="关闭"
 					cancelText="取消"
 				>
-					<Tabs type='card' defaultActiveKey='1' animated={true} onChange={this.changeAction.bind(this)}>
+					<Tabs type='card' defaultActiveKey='1' animated={true} onChange={this.changeActionHandler.bind(this)}>
 						<TabPane tab="登录" key="1">
 							<LoginForm 
-								setModalVisible={this.setModalVisible} 
-								registerHandler={this.registerHandler}
-								setNickName={this.setNickName}
-								action={this.state.action}
+								OnShowModal={OnShowModal} 
+								OnHideModal={OnHideModal} 
+								OnsetNickName={OnsetNickName}
+								Onclickbutton={Onclickbutton}
+								action={action}
+								logintext={logintext}
+								loginclicked={loginclicked}
 							/>
 						</TabPane>
 						<TabPane tab="注册" key="2">
-							<RegisterForm action={this.state.action}/>
+							<RegisterForm 
+								Onclickbutton={Onclickbutton}
+								OnsetConfirmdirty={OnsetConfirmdirty}
+								action={action}
+								registertext={registertext}
+								registerclicked={registerclicked}
+							/>
 						</TabPane>
 					</Tabs>
 				</Modal>
@@ -301,3 +224,34 @@ export default class MobileHeader extends Component {
 		)
 	}
 }
+
+function mapStateToProps (state) {
+	return {
+		action: state.HeaderReducer.action,
+		visible: state.HeaderReducer.visible,
+		nickname: state.HeaderReducer.nickname,
+		logintext: state.HeaderReducer.logintext,
+		loginclicked: state.HeaderReducer.loginclicked,
+		registertext: state.HeaderReducer.registertext,
+		registerclicked: state.HeaderReducer.registerclicked,
+		confirmDirty: state.HeaderReducer.confirmDirty
+	}
+}
+
+function mapDispatchToProps (dispatch) {
+	return {
+		OnShowModal: () => dispatch(showModal()),
+		OnHideModal: () => dispatch(hideModal()),
+		OnchangeAction: (value) => dispatch(changeAction(value)),
+		OnsetNickName: (value) => dispatch(setNickName(value)),
+		OnsetConfirmdirty: (confirmDirty) => dispatch(setConfirmdirty(confirmDirty)),
+
+	}
+}
+
+const MobileHeader = connect(
+	mapStateToProps,
+	mapDispatchToProps
+)(MobileHeaderConnect)
+
+export default MobileHeader;

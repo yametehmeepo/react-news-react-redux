@@ -14,10 +14,11 @@ export default class PCIndex extends Component {
 		}
 	}
 	render(){
+		const { register, Onlogout, Onclickbutton } = this.props;
 		return (
 			<Router>
 				<div>
-					<PCHeader />
+					<PCHeader register={register} Onlogout={Onlogout} Onclickbutton={Onclickbutton}/>
 					<PCBody />
 					<PCFooter />
 					<BackTop />

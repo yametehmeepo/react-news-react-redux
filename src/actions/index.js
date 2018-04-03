@@ -1,15 +1,15 @@
 import { 
 	SHOWMODAL,
 	HIDEMODAL,
+	LOGIN,
 	LOGOUT,
 	CHANGEACTION,
-	REGISTERHANDLER,
 	SETNICKNAME,
 	CLICKBUTTON,
 	LOGINSUCCESS,
 	REGISTERSUCCESS,
 	CONFIRMDIRTY,
-
+	QUITE
 } from '../actiontypes/index.js';
 import { message} from 'antd';
 import axios from 'axios';
@@ -27,11 +27,7 @@ export const hideModal = () => {
 	}
 }
 
-export const logout = () => {
-	return {
-		type: LOGOUT,
-	}
-}
+
 
 export const changeAction = (value) => {
 	return {
@@ -40,12 +36,6 @@ export const changeAction = (value) => {
 	}
 }
 
-export const registerHandler = (bool) => {
-	return {
-		type: REGISTERHANDLER,
-		register: bool
-	}
-}
 
 export const setNickName = (value) => {
 	return {
@@ -58,6 +48,24 @@ export const setConfirmdirty = (confirmDirty) => {
 	return {
 		type: CONFIRMDIRTY,
 		confirmDirty
+	}
+}
+
+export const login = () => {
+	return {
+		type: LOGIN,
+	}
+}
+
+export const logout = () => {
+	return {
+		type: LOGOUT,
+	}
+}
+
+export const quite = () => {
+	return {
+		type: QUITE,
 	}
 }
 
@@ -93,6 +101,7 @@ export const clickbutton = (action,username,password,r_userName,r_password,r_con
 					userId: logindata.UserId,
 				});
 				dispatch(loginSuccess(logindata.NickUserName,logindata.UserId));
+				dispatch(login());
 			}else{
 				message.success('注册成功!');
 				dispatch(registerSuccess());
@@ -100,6 +109,16 @@ export const clickbutton = (action,username,password,r_userName,r_password,r_con
 			//PubSub.publish('UpdateCollect');
 	})
 }
+
+
+
+
+
+
+
+
+
+
 
 
 

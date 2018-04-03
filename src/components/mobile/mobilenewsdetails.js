@@ -5,7 +5,6 @@ import DetailsCommit from '../pc/detailscommit.js';
 import CommitList from '../pc/commitlist.js';
 import PropTypes from 'prop-types';
 import axios from 'axios';
-//import { BrowserRouter as Router, Route, Link} from 'react-router-dom';
 import '../../assets/css/details.min.css'
 
 
@@ -20,7 +19,6 @@ export default class MobileNewsDetails extends Component {
 	}
 	getChildContext(){
 		return {
-			uniquekey: this.props.match.params.uniquekey,
 			totalcommitlist: this.state.totalcommitlist,
 		}
 	}
@@ -46,6 +44,9 @@ export default class MobileNewsDetails extends Component {
 	componentWillReceiveProps(nextProps){
 		const uniquekey = nextProps.match.params.uniquekey;
 		//console.log("componentWillReceiveProps: "+uniquekey);
+		if(uniquekey === this.props.match.params.uniquekey){
+			return false;
+		}
 		this.setState({
 			html: '数据加载中...',
 		});	
@@ -79,7 +80,7 @@ export default class MobileNewsDetails extends Component {
 			<div className="detailsContent">
 				<div className="mobiledetailsItem" dangerouslySetInnerHTML={{ __html: this.state.html }}></div>
 				<CommitList />
-				<DetailsCommit getCommit={this.getCommit}/>
+				<DetailsCommit getCommit={this.getCommit} uniquekey={this.props.match.params.uniquekey}/>
 				<MobileList type="yule" count={14} width="100%" imageWidth='135px' />
 			</div>
 		)
@@ -87,7 +88,6 @@ export default class MobileNewsDetails extends Component {
 }
 
 MobileNewsDetails.childContextTypes = {
-	uniquekey: PropTypes.string,
 	totalcommitlist: PropTypes.array,
 }
 

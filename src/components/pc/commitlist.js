@@ -58,7 +58,6 @@ export default class CommitList extends Component {
 }
 
 CommitList.contextTypes = {
-	uniquekey: PropTypes.string,
 	totalcommitlist: PropTypes.array,
 	pageSize: PropTypes.string,
 }

@@ -11,7 +11,7 @@ export default class ImageBlock extends Component {
 			downloadfinished: false
 		}
 	}
-	componentWillMount(){
+	componentDidMount(){
 		axios.get("http://newsapi.gugujiankong.com/Handler.ashx?action=getnews&type="+this.props.type+"&count="+this.props.count)
 		.then(res=>{
 			this.setState({

@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Form, Input, Button, message, notification } from 'antd';
 import PropTypes from 'prop-types';
 import PubSub from 'pubsub-js';
-//import Storage from '../../assets/js/storage.js';
+import Storage from '../../assets/js/storage.js';
 import axios from 'axios';
 
 const FormItem = Form.Item;
@@ -22,14 +22,12 @@ class DetailsCommit extends Component {
 		}
 	}
 	componentWillMount(){
-		console.log("userid: "+this.context.userId);
-		console.log("uniquekey: "+this.context.uniquekey);
-		if(this.context.isLogined){
-			axios.get("http://newsapi.gugujiankong.com/Handler.ashx?action=getuc&userid="+this.context.userId)
+		if(this.context.register){
+			axios.get("http://newsapi.gugujiankong.com/Handler.ashx?action=getuc&userid="+Storage.fetch().userId)
 			.then( res => {
 				var hasArticle = false;
 				res.data.forEach((item,index) => {
-					if(item.uniquekey === this.context.uniquekey){
+					if(item.uniquekey === this.props.uniquekey){
 						hasArticle = true;
 						return false;
 					}
@@ -60,7 +58,7 @@ class DetailsCommit extends Component {
 		this.props.form.resetFields();
 		if(commit !== ''){
 			console.log('提交评论: '+commit);
-			axios.get("http://newsapi.gugujiankong.com/Handler.ashx?action=comment&userid="+this.context.userId+"&uniquekey="+this.context.uniquekey+"&commnet="+commit)
+			axios.get("http://newsapi.gugujiankong.com/Handler.ashx?action=comment&userid="+Storage.fetch().userId+"&uniquekey="+this.props.uniquekey+"&commnet="+commit)
 			.then( res => {
 				this.props.getCommit();
 			})
@@ -72,7 +70,7 @@ class DetailsCommit extends Component {
 		}
 	}
 	collectArticle(){
-		axios.get('http://newsapi.gugujiankong.com/Handler.ashx?action=uc&userid='+this.context.userId+'&uniquekey='+this.context.uniquekey)
+		axios.get('http://newsapi.gugujiankong.com/Handler.ashx?action=uc&userid='+Storage.fetch().userId+'&uniquekey='+this.props.uniquekey)
 		.then( res => {
 			//console.log(res);
 			this.setState({
@@ -92,9 +90,9 @@ class DetailsCommit extends Component {
 			labelCol: { span: 24 },
 			wrapperCol: { span: 24}
 		}
-		const isLogined = this.context.isLogined;
+		const register = this.context.register;
 		var collectText = null;
-		if(!isLogined){
+		if(!register){
 			collectText = '登录收藏文章';
 		}
 		else{
@@ -109,13 +107,13 @@ class DetailsCommit extends Component {
 				<Form onSubmit={this.commitsubmit.bind(this)}>
 					<FormItem label="请发表您的评论" {...labelLayout}>
 						{
-							getFieldDecorator('commit')( <TextArea placeholder={isLogined?"随便写":'请登录后再发表评论'} disabled={!isLogined}/>)
+							getFieldDecorator('commit')( <TextArea placeholder={register?"随便写":'请登录后再发表评论'} disabled={!register}/>)
 						}
 					</FormItem>
 					<FormItem>
 						<div className="commitBtn">
-							<Button type="primary" htmlType="submit" disabled={!isLogined}>{isLogined?'提交  评论':'登录发表评论'}</Button>
-							<Button type="primary" htmlType="button" onClick={this.collectArticle.bind(this)} disabled={!isLogined || this.state.isCollected}>{collectText}</Button>
+							<Button type="primary" htmlType="submit" disabled={!register}>{register?'提交  评论':'登录发表评论'}</Button>
+							<Button type="primary" htmlType="button" onClick={this.collectArticle.bind(this)} disabled={!register || this.state.isCollected}>{collectText}</Button>
 						</div>
 					</FormItem>
 				</Form>
@@ -123,12 +121,11 @@ class DetailsCommit extends Component {
 		)
 	}
 }
-DetailsCommit.contextTypes ={
-	isLogined: PropTypes.bool,
-  	nickname: PropTypes.string,
-  	userId: PropTypes.number,
-  	uniquekey: PropTypes.string,
+
+DetailsCommit.contextTypes = {
+	register: PropTypes.bool,
 }
+
 export default DetailsCommit = Form.create()(DetailsCommit);
 
 
